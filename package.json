@@ -1,0 +1,36 @@
+{
+   "name": "graphql-server-boilerplate",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "devDependencies": {
+      "@types/node": "^12.12.11",
+      "husky": "^3.1.0",
+      "lint-staged": "^9.4.3",
+      "ts-node": "8.5.2",
+      "tslint-config-prettier": "^1.18.0",
+      "typescript": "3.7.2"
+   },
+   "dependencies": {
+      "typeorm": "0.2.20",
+      "reflect-metadata": "^0.1.13",
+      "pg": "^7.14.0"
+   },
+   "scripts": {
+      "start": "ts-node src/index.ts",
+      "pretty:all": "prettier --write \"./src/**/*.{js,jsx,ts,tsx}\" && npm run lint -- --fix",
+      "lint": "tslint --project tsconfig.json --config tslint.json",
+      "check-types": "tsc"
+   },
+   "husky": {
+      "hooks": {
+         "pre-commit": "lint-staged"
+      }
+   },
+   "lint-staged": {
+      "*.{ts,tsx}": [
+         "prettier --write",
+         "tslint --config tslint.json --fix",
+         "git add"
+      ]
+   }
+}
