@@ -4,6 +4,7 @@
    "description": "Awesome project developed with TypeORM.",
    "devDependencies": {
       "@types/bcryptjs": "^2.4.2",
+      "@types/graphql": "^14.5.0",
       "@types/jest": "^24.0.23",
       "@types/node": "^12.12.11",
       "@types/uuid": "^3.4.6",
@@ -19,10 +20,12 @@
       "ts-node": "8.5.2",
       "tslint": "^5.20.1",
       "tslint-config-prettier": "^1.18.0",
+      "tslint-react": "^4.1.0",
       "typescript": "3.7.2"
    },
    "dependencies": {
       "bcryptjs": "^2.4.3",
+      "graphql": "^14.5.8",
       "graphql-import": "^0.7.1",
       "graphql-request": "^1.8.2",
       "graphql-tools": "^4.0.6",
@@ -34,7 +37,7 @@
    },
    "scripts": {
       "start": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
-      "gen-schema-types": "gql2ts src/schema.graphql -o src/types/graphql.d.ts",
+      "gen-schema-types": "gql2ts \"./src/modules/**/*.graphql\" -o src/types/graphql.d.ts",
       "pretty:all": "prettier --write \"./src/**/*.{js,jsx,ts,tsx}\" && npm run lint -- --fix",
       "lint": "tslint --project tsconfig.json --config tslint.json",
       "check-types": "tsc",
