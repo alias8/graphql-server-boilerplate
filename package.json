@@ -8,6 +8,7 @@
       "@types/jest": "^24.0.23",
       "@types/node": "^12.12.11",
       "@types/uuid": "^3.4.6",
+      "@types/yup": "^0.26.24",
       "gql2ts": "^1.10.1",
       "husky": "^3.1.0",
       "jest": "^24.9.0",
@@ -33,7 +34,8 @@
       "pg": "^7.14.0",
       "reflect-metadata": "^0.1.13",
       "typeorm": "0.2.20",
-      "uuid": "^3.3.3"
+      "uuid": "^3.3.3",
+      "yup": "^0.27.0"
    },
    "scripts": {
       "start": "NODE_ENV=development nodemon --exec ts-node src/index.ts",

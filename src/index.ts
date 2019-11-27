@@ -10,7 +10,6 @@ import { createTypeormConnection } from "./utils/createTypeormConnection";
 export const startServer = async () => {
   const schemas: GraphQLSchema[] = [];
   const folders = fs.readdirSync(path.join(__dirname, ".", "modules"));
-  console.log("folders", folders);
   folders.forEach(folder => {
     const { resolvers } = require(path.join(
       __dirname,
@@ -23,7 +22,6 @@ export const startServer = async () => {
     const typeDefs = importSchema(
       path.join(__dirname, ".", "modules", folder, "schema.graphql")
     );
-    console.log(resolvers, typeDefs);
     schemas.push(makeExecutableSchema({ resolvers, typeDefs }));
   });
 
