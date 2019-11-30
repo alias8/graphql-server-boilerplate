@@ -3,8 +3,10 @@ import { GraphQLSchema } from "graphql";
 import { importSchema } from "graphql-import";
 import { makeExecutableSchema, mergeSchemas } from "graphql-tools";
 import { GraphQLServer } from "graphql-yoga";
+import Redis from "ioredis";
 import path from "path";
 import "reflect-metadata";
+import { User } from "./entity/User";
 import { createTypeormConnection } from "./utils/createTypeormConnection";
 
 export const startServer = async () => {
@@ -25,8 +27,29 @@ export const startServer = async () => {
     schemas.push(makeExecutableSchema({ resolvers, typeDefs }));
   });
 
-  const server = new GraphQLServer({ schema: mergeSchemas({ schemas }) });
-  await createTypeormConnection();
+  const redis = new Redis();
+
+  const server = new GraphQLServer({
+    schema: mergeSchemas({ schemas }),
+    context: ({ request }) => ({
+      redis,
+      url: request.protocol + "://" + request.get("host")
+    })
+  });
+
+  // This is the route for the confirm email link
+  server.express.get("/confirm/:id", async (req, res) => {
+    const { id } = req.params;
+    const userId = await redis.get(id);
+    if (userId) {
+      await User.update({ id: userId }, { confirmed: true });
+      res.send("ok");
+    } else {
+      res.send("invalid");
+    }
+  });
+
+  await createTypeormConnection(process.env.NODE_ENV as string);
   await server.start();
   console.log("Server is running on localhost:4000");
 };

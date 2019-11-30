@@ -24,7 +24,7 @@ const mutation = (emailParam: string, passwordParam: string) => `
 `;
 
 beforeEach(async () => {
-  await createTypeormConnection();
+  await createTypeormConnection(process.env.NODE_ENV as string);
 });
 
 afterEach(async () => {
@@ -42,48 +42,50 @@ async function registerUser() {
   expect(user.password).not.toEqual(password);
 }
 
-test("Register user", async () => {
-  await registerUser();
-});
-
-test("Register user with same email should fail", async () => {
-  await registerUser();
-  // try to sign up again, should fail
-  const response: any = await request(host, mutation(email, password));
-  expect(response).toEqual({
-    register: [
-      {
-        message: duplicateEmail,
-        path: "email"
-      }
-    ]
+describe("registration", () => {
+  test("Register user", async () => {
+    await registerUser();
   });
-});
 
-test("Catch error when email has error", async () => {
-  const response: any = await request(host, mutation("b", password));
-  expect(response).toEqual({
-    register: [
-      {
-        path: "email",
-        message: emailNotLongEnough
-      },
-      {
-        path: "email",
-        message: invalidEmail
-      }
-    ]
+  test("Register user with same email should fail", async () => {
+    await registerUser();
+    // try to sign up again, should fail
+    const response: any = await request(host, mutation(email, password));
+    expect(response).toEqual({
+      register: [
+        {
+          message: duplicateEmail,
+          path: "email"
+        }
+      ]
+    });
   });
-});
 
-test("Catch error when bad password is used", async () => {
-  const response: any = await request(host, mutation(email, "pa"));
-  expect(response).toEqual({
-    register: [
-      {
-        path: "password",
-        message: passwordNotLongEnough
-      }
-    ]
+  test("Catch error when email has error", async () => {
+    const response: any = await request(host, mutation("b", password));
+    expect(response).toEqual({
+      register: [
+        {
+          path: "email",
+          message: emailNotLongEnough
+        },
+        {
+          path: "email",
+          message: invalidEmail
+        }
+      ]
+    });
+  });
+
+  test("Catch error when bad password is used", async () => {
+    const response: any = await request(host, mutation(email, "pa"));
+    expect(response).toEqual({
+      register: [
+        {
+          path: "password",
+          message: passwordNotLongEnough
+        }
+      ]
+    });
   });
 });

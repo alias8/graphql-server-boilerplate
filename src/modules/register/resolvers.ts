@@ -3,6 +3,7 @@ import { IResolvers } from "graphql-tools";
 import * as yup from "yup";
 import { User } from "../../entity/User";
 import { GQL } from "../../types/graphql";
+import { createConfirmEmailLink } from "../../utils/createConfirmEmailLink";
 import { formatYupError } from "../../utils/formatYupError";
 import {
   duplicateEmail,
@@ -28,7 +29,7 @@ export const resolvers: IResolvers = {
     bye: () => "bye"
   },
   Mutation: {
-    register: async (_, args: GQL.IRegisterOnMutationArguments) => {
+    register: async (_, args: GQL.IRegisterOnMutationArguments, { redis }) => {
       try {
         await schema.validate(args, { abortEarly: false });
       } catch (err) {
@@ -58,6 +59,8 @@ export const resolvers: IResolvers = {
       });
 
       await user.save();
+
+      const link = await createConfirmEmailLink("", user.id, redis);
       return null;
     }
   }
