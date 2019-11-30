@@ -60,7 +60,7 @@ export const resolvers: IResolvers = {
 
       await user.save();
 
-      const link = await createConfirmEmailLink("", user.id, redis);
+      await createConfirmEmailLink("", user.id, redis);
       return null;
     }
   }

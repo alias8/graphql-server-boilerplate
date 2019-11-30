@@ -20,15 +20,24 @@ afterEach(async () => {
   await connection.close();
 });
 
-describe("Confirm email link", () => {
-  it("works", async () => {
-    const url = await createConfirmEmailLink(
-      process.env.TEST_HOST as string,
-      userID,
-      new Redis()
-    );
-    const response = await fetch(url);
-    const text = await response.text();
-    expect(text).toEqual("ok");
-  });
+test("Make sure it confirms user and clears key in redis", async () => {
+  const redis = new Redis();
+  const url = await createConfirmEmailLink(
+    process.env.TEST_HOST as string,
+    userID,
+    redis
+  );
+  const response = await fetch(url);
+  const text = await response.text();
+  expect(text).toEqual("ok");
+  const user = await User.findOne({ where: { id: userID } });
+  expect(user!.confirmed).toEqual(true);
+  expect(redis.get(user!.id));
+
+  // Why are we using redis at all? why not store the confirmation
+  // id as part of the User entry in postgres?
+  const chunks = url.split("/");
+  const key = chunks[chunks.length - 1];
+  const value = await redis.get(key);
+  expect(value).toBeNull();
 });

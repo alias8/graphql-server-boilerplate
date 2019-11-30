@@ -7,30 +7,15 @@ import Redis from "ioredis";
 import path from "path";
 import "reflect-metadata";
 import { User } from "./entity/User";
+import { confirmEmail } from "./routes/confirmEmail";
 import { createTypeormConnection } from "./utils/createTypeormConnection";
+import { genSchemas } from "./utils/generateSchema";
+
+export const redis = new Redis();
 
 export const startServer = async () => {
-  const schemas: GraphQLSchema[] = [];
-  const folders = fs.readdirSync(path.join(__dirname, ".", "modules"));
-  folders.forEach(folder => {
-    const { resolvers } = require(path.join(
-      __dirname,
-      ".",
-      "modules",
-      folder,
-      "resolvers"
-    ));
-
-    const typeDefs = importSchema(
-      path.join(__dirname, ".", "modules", folder, "schema.graphql")
-    );
-    schemas.push(makeExecutableSchema({ resolvers, typeDefs }));
-  });
-
-  const redis = new Redis();
-
   const server = new GraphQLServer({
-    schema: mergeSchemas({ schemas }),
+    schema: genSchemas(),
     context: ({ request }) => ({
       redis,
       url: request.protocol + "://" + request.get("host")
@@ -38,16 +23,11 @@ export const startServer = async () => {
   });
 
   // This is the route for the confirm email link
-  server.express.get("/confirm/:id", async (req, res) => {
-    const { id } = req.params;
-    const userId = await redis.get(id);
-    if (userId) {
-      await User.update({ id: userId }, { confirmed: true });
-      res.send("ok");
-    } else {
-      res.send("invalid");
-    }
-  });
+  /*
+   * When called, this route will set the User in postgres db
+   * to be confirmed
+   * */
+  server.express.get("/confirm/:id", confirmEmail);
 
   await createTypeormConnection(process.env.NODE_ENV as string);
   await server.start();
